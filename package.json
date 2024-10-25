@@ -1,0 +1,13 @@
+{
+  "name": "webb24-js2-slutprojekt-lefteris-avramidis",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",  
+    "start-backend": "cd backend && npm start",  
+    "start-frontend": "cd frontend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  }
+}
