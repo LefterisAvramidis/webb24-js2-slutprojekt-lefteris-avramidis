@@ -1,14 +1,33 @@
----------------------------------------------------------------------------
-API Endpoint Dokumentation
+------------------------------------------------------------------------------------------------------------------------
+Förkrav
 
-GET /api/products: Returnerar alla produkter med deras aktuella lager.
-POST /api/update-stock: Uppdaterar lagret för en specifik produkt.
----------------------------------------------------------------------------
-Download and Start Project 
+- Node.js 
+- npm (Node Package Manager)
+------------------------------------------------------------------------------------------------------------------------
+Installations- och Startinstruktioner
 
-# Clone the repository
-git clone https://github.com/LefterisAvramidis/webb24-js2-slutprojekt-lefteris-avramidis.git
+STEG 1
+Installera alla projektets dependencies i root mappen:
+-npm install
 
-# Go back to the root and start the entire application
-npm start
----------------------------------------------------------------------------
+STEG 2
+Installera dependencies för backend:
+-cd backend
+-npm install
+
+STEG 3 
+Installera dependencies för frontend:
+-cd ../frontend                        OBS! ../ Är utifrån att du fortfarande är i backend mappen :) 
+-npm install
+
+STEG 4
+Återgå till rotmappen:
+-npm start
+
+EXTRA: 
+Jag har kopplat Backend och Frontend så att du endast behöver skriva in "npm start" 
+för att starta backend samt frontend tillsammans och slippa navigerings processen. 
+
+Backend-servern körs med Express på http://localhost:5000.
+Frontend React-applikationen körs på en annan port http://localhost:3000.
+------------------------------------------------------------------------------------------------------------------------
