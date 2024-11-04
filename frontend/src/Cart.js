@@ -2,53 +2,71 @@ import React, { useState } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
-function Cart({ cart, setCart, bikes, setBikes, updateStock }) {
+function Cart({ cart, setCart, bikes, setBikes }) {
   const [showMessage, setShowMessage] = useState(false); // Hanterar visning av meddelande efter köp
+  const [errorMessage, setErrorMessage] = useState(''); // Felmeddelanden visas här
   const navigate = useNavigate();
 
   const totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0); // Räknar ut totalpriset för varukorgen
 
-  // Hantera tömning av varukorgen och återställ lager
+  // Funktion för att uppdatera lagret av en produkt
+  const updateStock = (id, quantity, successCallback) => {
+    fetch('/api/update-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, quantity }),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to update stock');
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          successCallback(); // Kör en funktion när uppdateringen lyckas
+        } else {
+          setErrorMessage(data.message);
+          setTimeout(() => setErrorMessage(''), 2000); // Tar bort felmeddelandet efter 2 sekunder
+        }
+      })
+      .catch(error => console.error('Error updating stock:', error));
+  };
+
+  // Hantera tömning av varukorgen utan att påverka lagret
   const handleClearCart = () => {
-    cart.forEach(item => {
-      updateStock(item.id, item.quantity, () => {
-        setBikes(prevBikes =>
-          prevBikes.map(b => (b.id === item.id ? { ...b, stock: b.stock + item.quantity } : b))
-        );
-      });
-    });
     setCart([]); // Töm varukorgen
     navigate('/'); // Navigera till startsidan
   };
 
-  // Hantera betalning av varukorgen
+  // Hantera betalning av varukorgen och uppdatera lagret i backend
   const handleCheckoutLocal = () => {
+    cart.forEach(item => {
+      updateStock(item.id, -item.quantity, () => {
+        setBikes(prevBikes =>
+          prevBikes.map(b => (b.id === item.id ? { ...b, stock: b.stock - item.quantity } : b))
+        );
+      });
+    });
     setShowMessage(true); // Visa meddelande om att köpet är klart
     setTimeout(() => {
       setShowMessage(false);
-      setCart([]); // Töm varukorgen utan att återställa lagret
+      setCart([]); // Töm varukorgen efter genomfört köp
     }, 1000);
   };
 
-  // Hantera borttagning av en vara från varukorgen
+  // Hantera borttagning av en vara från varukorgen utan att påverka lagret
   const removeItem = (bike) => {
     const updatedCart = cart
       .map(item => (item.id === bike.id ? { ...item, quantity: item.quantity - 1 } : item))
       .filter(item => item.quantity > 0); // Ta bort varan om kvantiteten är noll
 
-    // Uppdatera lagret i backend
-    updateStock(bike.id, 1, () => {
-      setCart(updatedCart); // Uppdatera varukorgen
-      setBikes(prevBikes =>
-        prevBikes.map(b => (b.id === bike.id ? { ...b, stock: b.stock + 1 } : b)) // Återställ lagret för borttagna varor
-      );
-    });
+    setCart(updatedCart); // Uppdatera varukorgen utan att påverka lagret
   };
 
   return (
     <div className="cart">
       <h2>Din Varukorg</h2>
       {showMessage && <p className="checkout-message">Tack för ditt köp!</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       {cart.length === 0 && !showMessage ? (
         <p>Din varukorg är tom.</p>

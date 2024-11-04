@@ -23,27 +23,6 @@ function App() {
     setTimeout(() => setErrorMessage(''), 2000); // Tar bort meddelandet efter 2 sekunder
   };
 
-  // Funktion för att uppdatera lagret av en produkt
-  const updateStock = (id, quantity, successCallback) => {
-    fetch('/api/update-stock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, quantity }),
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to update stock');
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          successCallback(); // Kör en funktion när uppdateringen lyckas
-        } else {
-          triggerErrorMessage(data.message);
-        }
-      })
-      .catch(error => console.error('Error updating stock:', error));
-  };
-
   // Hanterar logiken när användaren köper en cykel
   const handlePurchase = (bike) => {
     if (bike.stock <= 0) {
@@ -51,17 +30,11 @@ function App() {
       return;
     }
 
-    // Uppdatera lagret i backend
-    updateStock(bike.id, -1, () => {
-      setCart(prevCart => {
-        const existingItem = prevCart.find(item => item.id === bike.id);
-        return existingItem
-          ? prevCart.map(item => item.id === bike.id ? { ...item, quantity: item.quantity + 1 } : item)
-          : [...prevCart, { ...bike, quantity: 1 }];
-      });
-      setBikes(prevBikes =>
-        prevBikes.map(b => (b.id === bike.id ? { ...b, stock: b.stock - 1 } : b))
-      );
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === bike.id);
+      return existingItem
+        ? prevCart.map(item => item.id === bike.id ? { ...item, quantity: item.quantity + 1 } : item)
+        : [...prevCart, { ...bike, quantity: 1 }];
     });
   };
 
@@ -132,7 +105,7 @@ function App() {
             />
             <Route
               path="/cart"
-              element={<Cart cart={cart} setCart={setCart} bikes={bikes} setBikes={setBikes} updateStock={updateStock} />}
+              element={<Cart cart={cart} setCart={setCart} bikes={bikes} setBikes={setBikes} />}
             />
           </Routes>
         </main>
