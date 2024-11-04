@@ -26,6 +26,13 @@ const bikes = [
       image: '/images/bike4.png',
       stock: 3,
       price: 2500
+    },
+    {
+      id: 5,
+      name: 'Deluxe Bike',
+      image: '/images/bike5.png',
+      stock: 1,
+      price: 1000000
     }
   ];
   
