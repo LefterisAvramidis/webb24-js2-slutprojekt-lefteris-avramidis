@@ -25,24 +25,27 @@ function App() {
 
   // Hanterar logiken när användaren köper en cykel
   const handlePurchase = (bike) => {
-    if (bike.stock <= 0) {
+    const existingItem = cart.find(item => item.id === bike.id);
+  
+    // Check if the total quantity in cart plus one would exceed stock
+    if (existingItem && existingItem.quantity >= bike.stock) {
       triggerErrorMessage('Slut i lager, välj en annan produkt');
       return;
     }
-
+  
+    // Check if stock is available if not in cart
+    if (!existingItem && bike.stock <= 0) {
+      triggerErrorMessage('Slut i lager, välj en annan produkt');
+      return;
+    }
+  
     setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === bike.id);
       return existingItem
-        ? prevCart.map(item => item.id === bike.id ? { ...item, quantity: item.quantity + 1 } : item)
+        ? prevCart.map(item =>
+            item.id === bike.id ? { ...item, quantity: item.quantity + 1 } : item
+          )
         : [...prevCart, { ...bike, quantity: 1 }];
     });
-  };
-
-  // Hanterar sortering av cyklar
-  const handleSortChange = (option) => {
-    setSortOption(option);
-    const sortedBikes = [...bikes].sort((a, b) => (option === 'price' ? a.price - b.price : a.stock - b.stock));
-    setBikes(sortedBikes);
   };
 
   // Hanterar refresh-knappen för att återställa lager och webbsida
